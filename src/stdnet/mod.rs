@@ -123,7 +123,7 @@ enum AddressKind<'a> {
 /// # Examples
 ///
 /// ```no_run
-/// use mio_uds_windows::net::UnixListener;
+/// use uds_windows::UnixListener;
 ///
 /// let l = UnixListener::bind("/tmp/sock").unwrap();
 /// let addr = l.local_addr().expect("Couldn't get local address");
@@ -169,7 +169,7 @@ impl SocketAddr {
     /// A named address:
     ///
     /// ```no_run
-    /// use mio_uds_windows::net::UnixListener;
+    /// use uds_windows::UnixListener;
     ///
     /// let socket = UnixListener::bind("/tmp/sock").unwrap();
     /// let addr = socket.local_addr().expect("Couldn't get local address");
@@ -202,7 +202,7 @@ impl SocketAddr {
     /// With a pathname:
     ///
     /// ```no_run
-    /// use mio_uds_windows::net::UnixListener;
+    /// use uds_windows::UnixListener;
     /// use std::path::Path;
     ///
     /// let socket = UnixListener::bind("/tmp/sock").unwrap();

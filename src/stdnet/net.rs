@@ -16,7 +16,7 @@ use super::{c, cvt, sockaddr_un, SocketAddr, from_sockaddr_un};
 /// # Examples
 ///
 /// ```no_run
-/// use mio_uds_windows::net::UnixStream;
+/// use uds_windows::UnixStream;
 /// use std::io::prelude::*;
 ///
 /// let mut stream = UnixStream::connect("/path/to/my/socket").unwrap();
@@ -47,7 +47,7 @@ impl UnixStream {
     /// # Examples
     ///
     /// ```no_run
-    /// use mio_uds_windows::net::UnixStream;
+    /// use uds_windows::UnixStream;
     ///
     /// let socket = match UnixStream::connect("/tmp/sock") {
     ///     Ok(sock) => sock,
@@ -81,7 +81,7 @@ impl UnixStream {
     /// # Examples
     ///
     /// ```no_run
-    /// use mio_uds_windows::net::UnixStream;
+    /// use uds_windows::UnixStream;
     ///
     /// let socket = UnixStream::connect("/tmp/sock").unwrap();
     /// let sock_copy = socket.try_clone().expect("Couldn't clone socket");
@@ -95,7 +95,7 @@ impl UnixStream {
     /// # Examples
     ///
     /// ```no_run
-    /// use mio_uds_windows::net::UnixStream;
+    /// use uds_windows::UnixStream;
     ///
     /// let socket = UnixStream::connect("/tmp/sock").unwrap();
     /// let addr = socket.local_addr().expect("Couldn't get local address");
@@ -109,7 +109,7 @@ impl UnixStream {
     /// # Examples
     ///
     /// ```no_run
-    /// use mio_uds_windows::net::UnixStream;
+    /// use uds_windows::UnixStream;
     ///
     /// let socket = UnixStream::connect("/tmp/sock").unwrap();
     /// let addr = socket.peer_addr().expect("Couldn't get peer address");
@@ -123,7 +123,7 @@ impl UnixStream {
     /// # Examples
     ///
     /// ```no_run
-    /// use mio_uds_windows::net::UnixStream;
+    /// use uds_windows::UnixStream;
     ///
     /// let socket = UnixStream::connect("/tmp/sock").unwrap();
     /// socket.set_nonblocking(true).expect("Couldn't set nonblocking");
@@ -137,7 +137,7 @@ impl UnixStream {
     /// # Examples
     ///
     /// ```no_run
-    /// use mio_uds_windows::net::UnixStream;
+    /// use uds_windows::UnixStream;
     ///
     /// let socket = UnixStream::connect("/tmp/sock").unwrap();
     /// if let Ok(Some(err)) = socket.take_error() {
@@ -158,7 +158,7 @@ impl UnixStream {
     /// # Examples
     ///
     /// ```no_run
-    /// use mio_uds_windows::net::UnixStream;
+    /// use uds_windows::UnixStream;
     /// use std::net::Shutdown;
     ///
     /// let socket = UnixStream::connect("/tmp/sock").unwrap();
@@ -228,7 +228,7 @@ impl IntoRawSocket for UnixStream {
 ///
 /// ```no_run
 /// use std::thread;
-/// use mio_uds_windows::net::{UnixStream, UnixListener};
+/// use uds_windows::{UnixStream, UnixListener};
 ///
 /// fn handle_client(stream: UnixStream) {
 ///     // ...
@@ -269,7 +269,7 @@ impl UnixListener {
     /// # Examples
     ///
     /// ```no_run
-    /// use mio_uds_windows::net::UnixListener;
+    /// use uds_windows::UnixListener;
     ///
     /// let listener = match UnixListener::bind("/path/to/the/socket") {
     ///     Ok(sock) => sock,
@@ -306,7 +306,7 @@ impl UnixListener {
     /// # Examples
     ///
     /// ```no_run
-    /// use mio_uds_windows::net::UnixListener;
+    /// use uds_windows::UnixListener;
     ///
     /// let listener = UnixListener::bind("/path/to/the/socket").unwrap();
     ///
@@ -332,7 +332,7 @@ impl UnixListener {
     /// # Examples
     ///
     /// ```no_run
-    /// use mio_uds_windows::net::UnixListener;
+    /// use uds_windows::UnixListener;
     ///
     /// let listener = UnixListener::bind("/path/to/the/socket").unwrap();
     ///
@@ -347,7 +347,7 @@ impl UnixListener {
     /// # Examples
     ///
     /// ```no_run
-    /// use mio_uds_windows::net::UnixListener;
+    /// use uds_windows::UnixListener;
     ///
     /// let listener = UnixListener::bind("/path/to/the/socket").unwrap();
     ///
@@ -362,7 +362,7 @@ impl UnixListener {
     /// # Examples
     ///
     /// ```no_run
-    /// use mio_uds_windows::net::UnixListener;
+    /// use uds_windows::UnixListener;
     ///
     /// let listener = UnixListener::bind("/path/to/the/socket").unwrap();
     ///
@@ -377,7 +377,7 @@ impl UnixListener {
     /// # Examples
     ///
     /// ```no_run
-    /// use mio_uds_windows::net::UnixListener;
+    /// use uds_windows::UnixListener;
     ///
     /// let listener = UnixListener::bind("/tmp/sock").unwrap();
     ///
@@ -401,7 +401,7 @@ impl UnixListener {
     ///
     /// ```no_run
     /// use std::thread;
-    /// use mio_uds_windows::net::{UnixStream, UnixListener};
+    /// use uds_windows::{UnixStream, UnixListener};
     ///
     /// fn handle_client(stream: UnixStream) {
     ///     // ...
@@ -464,7 +464,7 @@ impl<'a> IntoIterator for &'a UnixListener {
 ///
 /// ```no_run
 /// use std::thread;
-/// use mio_uds_windows::net::{UnixStream, UnixListener};
+/// use uds_windows::{UnixStream, UnixListener};
 ///
 /// fn handle_client(stream: UnixStream) {
 ///     // ...
