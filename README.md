@@ -5,12 +5,6 @@ Forked from https://github.com/Azure/mio-uds-windows
 A library for integrating Unix Domain Sockets on Windows. Similar to
 the standard library's [support for Unix sockets][std].
 
-```toml
-# Cargo.toml
-[dependencies]
-uds_windows = "0.1.0"
-```
-
 ## Structure
 
 Most of the exported types in `uds_windows` are analagous to the
