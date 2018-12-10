@@ -1,14 +1,17 @@
 [package]
 name = "uds_windows"
-version = "0.1.1"
+version = "0.1.2"
 license = "MIT"
 authors = ["Azure IoT Edge Devs", "Harald Hoyer <harald@redhat.com>"]
 description = "Unix Domain Sockets for Windows!"
 repository = "https://github.com/haraldh/rust_uds_windows"
 readme = "README.md"
-# keywords = ""
-# categories = ""
+keywords = ["windows", "uds", "unix", "domain", "sockets"]
+categories = ["os::windows-apis"]
 exclude = [".gitignore"]
+
+[package.metadata.docs.rs]
+default-target = "x86_64-pc-windows-msvc"
 
 [target.'cfg(windows)'.dependencies]
 kernel32-sys = "0.2.2"
