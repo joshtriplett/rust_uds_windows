@@ -9,7 +9,7 @@ use std::path::Path;
 use ws2_32::{bind, connect, getpeername, getsockname, listen};
 
 use super::socket::{init, Socket};
-use super::{c, cvt, sockaddr_un, SocketAddr, from_sockaddr_un};
+use super::{c, cvt, from_sockaddr_un, sockaddr_un, SocketAddr};
 
 /// A Unix stream socket
 ///
@@ -64,7 +64,11 @@ impl UnixStream {
                 let inner = Socket::new()?;
                 let (addr, len) = sockaddr_un(path)?;
 
-                cvt(connect(inner.as_raw_socket() as _, &addr as *const _ as *const _, len as i32))?;
+                cvt(connect(
+                    inner.as_raw_socket() as _,
+                    &addr as *const _ as *const _,
+                    len as i32,
+                ))?;
                 Ok(UnixStream(inner))
             }
         }
@@ -247,7 +251,6 @@ impl IntoRawSocket for UnixStream {
     }
 }
 
-
 /// A Unix domain socket server
 ///
 /// # Examples
@@ -312,7 +315,11 @@ impl UnixListener {
                 let inner = Socket::new()?;
                 let (addr, len) = sockaddr_un(path)?;
 
-                cvt(bind(inner.as_raw_socket() as _, &addr as *const _ as *const _, len as _))?;
+                cvt(bind(
+                    inner.as_raw_socket() as _,
+                    &addr as *const _ as *const _,
+                    len as _,
+                ))?;
                 cvt(listen(inner.as_raw_socket() as _, 128))?;
 
                 Ok(UnixListener(inner))
@@ -544,7 +551,7 @@ mod test {
                 Ok(e) => e,
                 Err(e) => panic!("{}", e),
             }
-        }
+        };
     }
 
     fn tmpdir() -> Result<(TempDir, PathBuf), io::Error> {
@@ -569,8 +576,10 @@ mod test {
         });
 
         let mut stream = or_panic!(UnixStream::connect(&socket_path));
-        assert_eq!(Some(&*socket_path),
-                   stream.peer_addr().unwrap().as_pathname());
+        assert_eq!(
+            Some(&*socket_path),
+            stream.peer_addr().unwrap().as_pathname()
+        );
         or_panic!(stream.write_all(msg1));
         let mut buf = vec![];
         or_panic!(stream.read_to_end(&mut buf));
@@ -596,8 +605,10 @@ mod test {
 
         let mut stream = or_panic!(UnixStream::connect(&socket_path));
         let mut stream2 = or_panic!(stream.try_clone());
-        assert_eq!(Some(&*socket_path),
-                   stream2.peer_addr().unwrap().as_pathname());
+        assert_eq!(
+            Some(&*socket_path),
+            stream2.peer_addr().unwrap().as_pathname()
+        );
 
         let mut buf = [0; 5];
         or_panic!(stream.read(&mut buf));
@@ -632,9 +643,10 @@ mod test {
     #[test]
     fn long_path() {
         let dir = or_panic!(TempDir::new("mio-uds-windows"));
-        let socket_path = dir.path()
-                             .join("asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfa\
-                                    sasdfasdfasdasdfasdfasdfadfasdfasdfasdfasdfasdf");
+        let socket_path = dir.path().join(
+            "asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfa\
+             sasdfasdfasdasdfasdfasdfadfasdfasdfasdfasdfasdf",
+        );
         match UnixStream::connect(&socket_path) {
             Err(ref e) if e.kind() == io::ErrorKind::InvalidInput => {}
             Err(e) => panic!("unexpected error {}", e),

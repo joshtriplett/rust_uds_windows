@@ -19,7 +19,6 @@ mod stdnet;
 
 #[cfg(windows)]
 pub use stdnet::{
-    AcceptAddrs, AcceptAddrsBuf, SocketAddr, UnixListener, UnixListenerExt,
-    UnixStream, UnixStreamExt, from_path
+    from_path, AcceptAddrs, AcceptAddrsBuf, SocketAddr, UnixListener, UnixListenerExt, UnixStream,
+    UnixStreamExt,
 };
-

@@ -11,13 +11,16 @@ use std::sync::Once;
 use super::{cvt, last_error};
 
 use kernel32::{GetCurrentProcessId, SetHandleInformation};
-use winapi::{socklen_t, AF_UNIX, DWORD, FIONBIO, HANDLE, INVALID_SOCKET,
-    SO_ERROR, SOCK_STREAM, SOCKADDR, SOCKET, SOL_SOCKET, WSADATA,
-    WSAPROTOCOL_INFOW};
+use winapi::{
+    socklen_t, AF_UNIX, DWORD, FIONBIO, HANDLE, INVALID_SOCKET, SOCKADDR, SOCKET, SOCK_STREAM,
+    SOL_SOCKET, SO_ERROR, WSADATA, WSAPROTOCOL_INFOW,
+};
 // use winapi::WSACleanup;
 use ws2_32::getsockopt as c_getsockopt;
-use ws2_32::{accept, closesocket, ioctlsocket, recv, send, shutdown,
-    WSADuplicateSocketW, WSASocketW, WSAStartup};
+use ws2_32::{
+    accept, closesocket, ioctlsocket, recv, send, shutdown, WSADuplicateSocketW, WSASocketW,
+    WSAStartup,
+};
 
 pub const WSA_FLAG_OVERLAPPED: DWORD = 0x01;
 pub const HANDLE_FLAG_INHERIT: DWORD = 0x01;
@@ -35,8 +38,10 @@ pub fn init() {
 
     START.call_once(|| unsafe {
         let mut data: WSADATA = mem::zeroed();
-        let ret = WSAStartup(0x202, // version 2.2
-                                &mut data);
+        let ret = WSAStartup(
+            0x202, // version 2.2
+            &mut data,
+        );
         assert_eq!(ret, 0);
 
         // let _ = std::rt::at_exit(|| { WSACleanup(); });
@@ -125,10 +130,12 @@ impl Socket {
 
     fn recv_with_flags(&self, buf: &mut [u8], flags: c_int) -> io::Result<usize> {
         let ret = cvt(unsafe {
-            recv(self.0,
-                 buf.as_mut_ptr() as *mut _,
-                 buf.len() as c_int,
-                 flags)
+            recv(
+                self.0,
+                buf.as_mut_ptr() as *mut _,
+                buf.len() as c_int,
+                flags,
+            )
         })?;
         Ok(ret as usize)
     }
@@ -138,18 +145,12 @@ impl Socket {
     }
 
     pub fn write(&self, buf: &[u8]) -> io::Result<usize> {
-        let ret = cvt(unsafe {
-            send(self.0,
-                 buf as *const _ as *const _,
-                 buf.len() as c_int,
-                 0)
-        })?;
+        let ret = cvt(unsafe { send(self.0, buf as *const _ as *const _, buf.len() as c_int, 0) })?;
         Ok(ret as usize)
     }
 
     fn set_no_inherit(&self) -> io::Result<()> {
-        cvt_z(unsafe { SetHandleInformation(self.0 as HANDLE, HANDLE_FLAG_INHERIT, 0) })
-            .map(|_| ())
+        cvt_z(unsafe { SetHandleInformation(self.0 as HANDLE, HANDLE_FLAG_INHERIT, 0) }).map(|_| ())
     }
 
     pub fn set_nonblocking(&self, nonblocking: bool) -> io::Result<()> {
@@ -182,14 +183,17 @@ impl Socket {
     }
 }
 
-pub fn getsockopt<T: Copy>(sock: &Socket, opt: c_int,
-                       val: c_int) -> io::Result<T> {
+pub fn getsockopt<T: Copy>(sock: &Socket, opt: c_int, val: c_int) -> io::Result<T> {
     unsafe {
         let mut slot: T = mem::zeroed();
         let mut len = mem::size_of::<T>() as socklen_t;
-        cvt(c_getsockopt(sock.as_raw_socket() as _, opt, val,
-                          &mut slot as *mut _ as *mut _,
-                          &mut len))?;
+        cvt(c_getsockopt(
+            sock.as_raw_socket() as _,
+            opt,
+            val,
+            &mut slot as *mut _ as *mut _,
+            &mut len,
+        ))?;
         assert_eq!(len as usize, mem::size_of::<T>());
         Ok(slot)
     }

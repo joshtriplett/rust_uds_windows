@@ -2,8 +2,8 @@ use std::ascii;
 use std::fmt;
 use std::io;
 use std::mem;
-use std::path::Path;
 use std::os::raw::{c_char, c_int};
+use std::path::Path;
 
 use winapi::SOCKADDR;
 use ws2_32::WSAGetLastError;
@@ -29,9 +29,7 @@ mod c {
 
     impl fmt::Debug for sockaddr_un {
         fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-            let path = unsafe {
-                CStr::from_ptr(&self.sun_path as *const _).to_str()
-            };
+            let path = unsafe { CStr::from_ptr(&self.sun_path as *const _).to_str() };
             fmt.debug_struct("sockaddr_un")
                 .field("sun_family", &self.sun_family)
                 .field("sun_path", &path.unwrap_or("???"))
@@ -53,20 +51,23 @@ pub unsafe fn sockaddr_un(path: &Path) -> io::Result<(c::sockaddr_un, c_int)> {
     addr.sun_family = c::AF_UNIX;
 
     // Winsock2 expects 'sun_path' to be a Win32 UTF-8 file system path
-    let bytes = path
-        .to_str()
-        .map(|s| s.as_bytes())
-        .ok_or(io::Error::new(io::ErrorKind::InvalidInput,
-                              "path contains invalid characters"))?;
+    let bytes = path.to_str().map(|s| s.as_bytes()).ok_or(io::Error::new(
+        io::ErrorKind::InvalidInput,
+        "path contains invalid characters",
+    ))?;
 
     if bytes.contains(&0) {
-        return Err(io::Error::new(io::ErrorKind::InvalidInput,
-                                  "paths may not contain interior null bytes"));
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "paths may not contain interior null bytes",
+        ));
     }
 
     if bytes.len() >= addr.sun_path.len() {
-        return Err(io::Error::new(io::ErrorKind::InvalidInput,
-                                  "path must be shorter than SUN_LEN"));
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "path must be shorter than SUN_LEN",
+        ));
     }
     for (dst, src) in addr.sun_path.iter_mut().zip(bytes.iter()) {
         *dst = *src as c_char;
@@ -136,7 +137,8 @@ pub struct SocketAddr {
 
 impl SocketAddr {
     fn new<F>(f: F) -> io::Result<SocketAddr>
-        where F: FnOnce(*mut SOCKADDR, *mut c_int) -> c_int
+    where
+        F: FnOnce(*mut SOCKADDR, *mut c_int) -> c_int,
     {
         unsafe {
             let mut addr: c::sockaddr_un = mem::zeroed();
@@ -150,16 +152,15 @@ impl SocketAddr {
         if len == 0 {
             // When there is a datagram from unnamed unix socket
             // linux returns zero bytes of address
-            len = sun_path_offset() as c_int;  // i.e. zero-length address
+            len = sun_path_offset() as c_int; // i.e. zero-length address
         } else if addr.sun_family != c::AF_UNIX {
-            return Err(io::Error::new(io::ErrorKind::InvalidInput,
-                                      "file descriptor did not correspond to a Unix socket"));
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "file descriptor did not correspond to a Unix socket",
+            ));
         }
 
-        Ok(SocketAddr {
-            addr,
-            len,
-        })
+        Ok(SocketAddr { addr, len })
     }
 
     /// Returns true if and only if the address is unnamed.
@@ -213,10 +214,10 @@ impl SocketAddr {
     // TODO: Is this following section relevant on Windows? Removed from the
     //       docs for now...
     // Without a pathname:
-    // 
+    //
     // ```ignore
     // use std::os::windows::net::UnixDatagram;
-    // 
+    //
     // let socket = UnixDatagram::unbound().unwrap();
     // let addr = socket.local_addr().expect("Couldn't get local address");
     // assert_eq!(addr.as_pathname(), None);
@@ -265,9 +266,9 @@ impl PartialEq for SocketAddr {
         let ita = self.addr.sun_path.iter();
         let itb = other.addr.sun_path.iter();
 
-        self.len == other.len &&
-            self.addr.sun_family == other.addr.sun_family &&
-                ita.zip(itb).all(|(a, b)| a == b)
+        self.len == other.len
+            && self.addr.sun_family == other.addr.sun_family
+            && ita.zip(itb).all(|(a, b)| a == b)
     }
 }
 
