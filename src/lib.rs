@@ -12,6 +12,9 @@ extern crate ws2_32;
 extern crate kernel32;
 
 #[cfg(windows)]
+extern crate tempdir;
+
+#[cfg(windows)]
 mod stdnet;
 
 #[cfg(windows)]

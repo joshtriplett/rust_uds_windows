@@ -1,5 +1,5 @@
 use std::fmt;
-use std::io::{self};
+use std::io;
 use std::mem;
 use std::net::Shutdown;
 use std::os::raw::c_int;
@@ -166,6 +166,32 @@ impl UnixStream {
     /// ```
     pub fn shutdown(&self, how: Shutdown) -> io::Result<()> {
         self.0.shutdown(how)
+    }
+
+    pub fn pair() -> io::Result<(Self, Self)> {
+        use std::io;
+        use std::sync::{Arc, RwLock};
+        use std::thread::spawn;
+        use tempdir::TempDir;
+
+        let dir = TempDir::new("rust-uds-windows")?;
+        let file_path = dir.path().join("socket");
+        let a: Arc<RwLock<Option<io::Result<UnixStream>>>> = Arc::new(RwLock::new(None));
+        let ul = UnixListener::bind(&file_path).unwrap();
+        let server = {
+            let a = a.clone();
+            spawn(move || {
+                let mut store = a.write().unwrap();
+                let stream0 = ul.accept().map(|s| s.0);
+                *store = Some(stream0);
+            })
+        };
+        let stream1 = UnixStream::connect(&file_path)?;
+        server
+            .join()
+            .map_err(|_| io::Error::from(io::ErrorKind::ConnectionRefused))?;
+        let stream0 = (*(a.write().unwrap())).take().unwrap()?;
+        return Ok((stream0, stream1));
     }
 }
 
