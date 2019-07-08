@@ -8,7 +8,7 @@ use std::fmt;
 use std::io;
 use std::mem;
 use std::os::windows::prelude::*;
-use std::sync::atomic::{AtomicUsize, Ordering, ATOMIC_USIZE_INIT};
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 use winapi::{
     c_int, u_long, BOOL, DWORD, FALSE, GUID, LPDWORD, LPINT, LPOVERLAPPED, LPSOCKADDR, OVERLAPPED,
@@ -460,7 +460,7 @@ unsafe fn connect_overlapped(
             Data3: 0x4660,
             Data4: [0x8e, 0xe9, 0x76, 0xe5, 0x8c, 0x74, 0x06, 0x3e],
         },
-        val: ATOMIC_USIZE_INIT,
+        val: AtomicUsize::new(0),
     };
     type ConnectEx = unsafe extern "system" fn(
         SOCKET,
@@ -508,7 +508,7 @@ impl UnixListenerExt for UnixListener {
                 Data3: 0x11cf,
                 Data4: [0x95, 0xca, 0x00, 0x80, 0x5f, 0x48, 0xa1, 0x92],
             },
-            val: ATOMIC_USIZE_INIT,
+            val: AtomicUsize::new(0),
         };
         type AcceptEx = unsafe extern "system" fn(
             SOCKET,
@@ -577,7 +577,7 @@ static GETACCEPTEXSOCKADDRS: WsaExtension = WsaExtension {
         Data3: 0x11cf,
         Data4: [0x95, 0xca, 0x00, 0x80, 0x5f, 0x48, 0xa1, 0x92],
     },
-    val: ATOMIC_USIZE_INIT,
+    val: AtomicUsize::new(0),
 };
 type GetAcceptExSockaddrs = unsafe extern "system" fn(
     PVOID,
