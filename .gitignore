@@ -11,3 +11,5 @@ Cargo.lock
 
 # VS Code workspace config directory
 /.vscode/
+
+/.idea
