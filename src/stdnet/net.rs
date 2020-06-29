@@ -7,8 +7,8 @@ use std::os::windows::io::{AsRawSocket, FromRawSocket, IntoRawSocket, RawSocket}
 use std::path::Path;
 use std::time::Duration;
 
-use ws2_32::{bind, connect, getpeername, getsockname, listen};
 use winapi::{SO_RCVTIMEO, SO_SNDTIMEO};
+use ws2_32::{bind, connect, getpeername, getsockname, listen};
 
 use super::socket::{init, Socket};
 use super::{c, cvt, from_sockaddr_un, sockaddr_un, SocketAddr};
@@ -236,7 +236,7 @@ impl UnixStream {
     }
 
     /// Returns the read timeout of this socket.
-    /// 
+    ///
     /// # Examples
     ///
     /// ```no_run
@@ -251,8 +251,8 @@ impl UnixStream {
     }
 
     /// Returns the write timeout of this socket.
-    /// 
-        /// # Examples
+    ///
+    /// # Examples
     ///
     /// ```no_run
     /// use uds_windows::UnixStream;

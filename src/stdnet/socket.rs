@@ -13,8 +13,8 @@ use super::{cvt, last_error};
 
 use kernel32::{GetCurrentProcessId, SetHandleInformation};
 use winapi::{
-    socklen_t, AF_UNIX, DWORD, FIONBIO, HANDLE, INVALID_SOCKET, SOCKADDR, SOCKET, SOCK_STREAM,
-    SOL_SOCKET, SO_ERROR, WSADATA, WSAPROTOCOL_INFOW, INFINITE
+    socklen_t, AF_UNIX, DWORD, FIONBIO, HANDLE, INFINITE, INVALID_SOCKET, SOCKADDR, SOCKET,
+    SOCK_STREAM, SOL_SOCKET, SO_ERROR, WSADATA, WSAPROTOCOL_INFOW,
 };
 // use winapi::WSACleanup;
 use ws2_32::getsockopt as c_getsockopt;
@@ -189,12 +189,14 @@ impl Socket {
             Some(dur) => {
                 let timeout = dur2timeout(dur);
                 if timeout == 0 {
-                    return Err(io::Error::new(io::ErrorKind::InvalidInput,
-                                              "cannot set a 0 duration timeout"));
+                    return Err(io::Error::new(
+                        io::ErrorKind::InvalidInput,
+                        "cannot set a 0 duration timeout",
+                    ));
                 }
                 timeout
             }
-            None => 0
+            None => 0,
         };
         setsockopt(self, SOL_SOCKET, kind, timeout)
     }
@@ -211,12 +213,16 @@ impl Socket {
     }
 }
 
-pub fn setsockopt<T>(sock: &Socket, opt: c_int, val: c_int,
-                     payload: T) -> io::Result<()> {
+pub fn setsockopt<T>(sock: &Socket, opt: c_int, val: c_int, payload: T) -> io::Result<()> {
     unsafe {
         let payload = &payload as *const T as *const _;
-        cvt(c_setsockopt(sock.as_raw_socket(), opt, val, payload,
-                          mem::size_of::<T>() as socklen_t))?;
+        cvt(c_setsockopt(
+            sock.as_raw_socket(),
+            opt,
+            val,
+            payload,
+            mem::size_of::<T>() as socklen_t,
+        ))?;
         Ok(())
     }
 }
@@ -245,17 +251,24 @@ fn dur2timeout(dur: Duration) -> DWORD {
     // * Nanosecond precision is rounded up
     // * Greater than u32::MAX milliseconds (50 days) is rounded up to INFINITE
     //   (never time out).
-    dur.as_secs().checked_mul(1000).and_then(|ms| {
-        ms.checked_add((dur.subsec_nanos() as u64) / 1_000_000)
-    }).and_then(|ms| {
-        ms.checked_add(if dur.subsec_nanos() % 1_000_000 > 0 {1} else {0})
-    }).map(|ms| {
-        if ms > <DWORD>::max_value() as u64 {
-            INFINITE
-        } else {
-            ms as DWORD
-        }
-    }).unwrap_or(INFINITE)
+    dur.as_secs()
+        .checked_mul(1000)
+        .and_then(|ms| ms.checked_add((dur.subsec_nanos() as u64) / 1_000_000))
+        .and_then(|ms| {
+            ms.checked_add(if dur.subsec_nanos() % 1_000_000 > 0 {
+                1
+            } else {
+                0
+            })
+        })
+        .map(|ms| {
+            if ms > <DWORD>::max_value() as u64 {
+                INFINITE
+            } else {
+                ms as DWORD
+            }
+        })
+        .unwrap_or(INFINITE)
 }
 
 impl Drop for Socket {
