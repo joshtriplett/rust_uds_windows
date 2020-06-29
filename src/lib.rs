@@ -1,7 +1,5 @@
 //! Unix domain sockets for Windows
 
-#![cfg_attr(test, deny(warnings))]
-
 #[cfg(windows)]
 extern crate winapi;
 
@@ -18,7 +16,7 @@ extern crate tempdir;
 mod stdnet;
 
 #[cfg(windows)]
-pub use stdnet::{
+pub use crate::stdnet::{
     from_path, AcceptAddrs, AcceptAddrsBuf, SocketAddr, UnixListener, UnixListenerExt, UnixStream,
     UnixStreamExt,
 };
