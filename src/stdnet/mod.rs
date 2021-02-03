@@ -41,10 +41,9 @@ mod c {
     }
 }
 
-pub fn sun_path_offset() -> usize {
+fn sun_path_offset(addr: &c::sockaddr_un) -> usize {
     // Work with an actual instance of the type since using a null pointer is UB
-    let addr: c::sockaddr_un = unsafe { mem::uninitialized() };
-    let base = &addr as *const _ as usize;
+    let base = addr as *const _ as usize;
     let path = &addr.sun_path as *const _ as usize;
     path - base
 }
@@ -78,7 +77,7 @@ pub unsafe fn sockaddr_un(path: &Path) -> io::Result<(c::sockaddr_un, c_int)> {
     // null byte for pathname addresses is already there because we zeroed the
     // struct
 
-    let mut len = sun_path_offset() + bytes.len();
+    let mut len = sun_path_offset(&addr) + bytes.len();
     match bytes.get(0) {
         Some(&0) | None => {}
         Some(_) => len += 1,
@@ -155,7 +154,7 @@ impl SocketAddr {
         if len == 0 {
             // When there is a datagram from unnamed unix socket
             // linux returns zero bytes of address
-            len = sun_path_offset() as c_int; // i.e. zero-length address
+            len = sun_path_offset(&addr) as c_int; // i.e. zero-length address
         } else if addr.sun_family != c::AF_UNIX {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
@@ -234,7 +233,7 @@ impl SocketAddr {
     }
 
     fn address<'a>(&'a self) -> AddressKind<'a> {
-        let len = self.len as usize - sun_path_offset();
+        let len = self.len as usize - sun_path_offset(&self.addr);
         // sockaddr_un::sun_path on Windows is a Win32 UTF-8 file system path
         let path = unsafe { mem::transmute::<&[c_char], &[u8]>(&self.addr.sun_path) };
 

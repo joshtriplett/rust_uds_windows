@@ -319,7 +319,7 @@ unsafe fn ptrs_to_socket_addr(ptr: *const SOCKADDR, len: c_int) -> Option<Socket
             match b.sun_path.iter().position(|c| *c == 0) {
                 Some(0) => from_sockaddr_un(b.clone(), len).ok(),
                 Some(i) => {
-                    let mut l = sun_path_offset() + i;
+                    let mut l = sun_path_offset(b) + i;
                     match b.sun_path.get(0) {
                         Some(&0) | None => {}
                         Some(_) => l += 1,
