@@ -1,6 +1,6 @@
 [package]
 name = "uds_windows"
-version = "0.1.6-alpha.0"
+version = "0.1.6"
 license = "MIT"
 authors = ["Azure IoT Edge Devs", "Harald Hoyer <harald@redhat.com>"]
 description = "Unix Domain Sockets for Windows!"
