@@ -8,7 +8,7 @@ repository = "https://github.com/haraldh/rust_uds_windows"
 readme = "README.md"
 keywords = ["windows", "uds", "unix", "domain", "sockets"]
 categories = ["os::windows-apis"]
-exclude = [".gitignore"]
+exclude = [".gitignore", ".github"]
 
 [package.metadata.docs.rs]
 default-target = "x86_64-pc-windows-msvc"
