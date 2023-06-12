@@ -4,7 +4,9 @@ use std::io;
 use std::mem;
 use std::net::Shutdown;
 use std::os::raw::{c_int, c_ulong};
-use std::os::windows::io::{AsRawSocket, FromRawSocket, IntoRawSocket, RawSocket};
+use std::os::windows::io::{
+    AsRawSocket, AsSocket, BorrowedSocket, FromRawSocket, IntoRawSocket, OwnedSocket, RawSocket,
+};
 use std::ptr;
 use std::sync::Once;
 use std::time::Duration;
@@ -296,5 +298,23 @@ impl IntoRawSocket for Socket {
         let ret = self.0 as RawSocket;
         mem::forget(self);
         ret
+    }
+}
+
+impl AsSocket for Socket {
+    fn as_raw_socket(&self) -> BorrowedSocket<'_> {
+        unsafe { BorrowedSocket::borrow_raw(self.as_raw_socket()) }
+    }
+}
+
+impl From<Socket> for OwnedSocket {
+    fn from(sock: Socket) -> OwnedSocket {
+        unsafe { OwnedSocket::from_raw_socket(sock.into_raw_socket()) }
+    }
+}
+
+impl From<OwnedSocket> for Socket {
+    fn from(owned: OwnedSocket) -> Socket {
+        unsafe { Socket::from_raw_socket(owned.into_raw_socket()) }
     }
 }
